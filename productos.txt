@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Globo Terráqueo",
+    "description": "globo redondo",
+    "code": "007",
+    "thumbnail": "https://cdn3.iconfinder.com/data/icons/education-209/64/globe-earth-geograhy-planet-school-256.png",
+    "price": 0.67,
+    "stock": true,
+    "timestamp": 1661305526665,
+    "id": 1
+  }
+]
