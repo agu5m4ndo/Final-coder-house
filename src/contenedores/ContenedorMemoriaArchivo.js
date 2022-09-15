@@ -1,17 +1,17 @@
 const fs = require('fs');
 
-class Contenedor {
+class ContenedorMemoriaArchivo {
     array = [];
     constructor(nombreArchivo) {
         this.nombreArchivo = nombreArchivo;
         this.idValue = 1;
     }
 
-    increaseId = () => {
+    increaseId() {
         this.idValue++;
     }
 
-    save = async(object) => {
+    async save(object) {
         object.id = this.idValue
         this.increaseId();
         this.array.push(object);
@@ -22,16 +22,16 @@ class Contenedor {
         }
     }
 
-    getById = (id) => { //ID es equivalente a la posición del objeto en el array +1
+    getById(id) { //ID es equivalente a la posición del objeto en el array +1
         if (this.array[id - 1]) {
             const result = this.array.filter(item => { return item.id === id })
-            return result;
+            return result[0];
         }
         console.log(`No se ha encontrado un objeto con el id ${id}`);
         return null;
     }
 
-    getAll = () => {
+    getAll() {
         try {
             return this.array;
         } catch (error) {
@@ -39,18 +39,17 @@ class Contenedor {
         }
     }
 
-    update = async(id) => {
+    async update(newItem) {
         try {
-            if (this.array[id - 1]) {
-                await fs.promises.writeFile(`./${this.nombreArchivo}`, JSON.stringify(this.array, null, 2))
-            };
-
+            // console.log(newItem)
+            this.array[newItem.id] = newItem;
+            await fs.promises.writeFile(`./${this.nombreArchivo}`, JSON.stringify(this.array, null, 2))
         } catch (error) {
-            console.log(`Se ha producido un error al añadir el archivo, ${error}`);
+            console.log(`Se ha producido un error al modificar el archivo, ${error}`);
         }
     }
 
-    deleteById = async(id) => {
+    async delete(id) {
         try {
             if (this.array[id - 1]) {
                 const remember = this.array[id - 1]; //Solamente existe para notificar la acción
@@ -65,10 +64,10 @@ class Contenedor {
         }
     }
 
-    deleteAll = async() => {
+    async deleteAll() {
         await fs.promises.writeFile(`./${this.nombreArchivo}`, "");
         console.log('Todos los objetos han sido eliminados')
     }
 }
 
-module.exports = Contenedor;
+module.exports = ContenedorMemoriaArchivo;

@@ -11,6 +11,6 @@ const {
 const auth = require('../middleware/auth');
 
 router.route('/').get(getAllProducts).post(auth, postProduct);
-router.route('/:id').get(getOneProduct).delete(auth, deleteProduct).put(auth, editProduct);
+router.route('/:code').get(getOneProduct).delete(auth, deleteProduct).put(auth, editProduct);
 
 module.exports = router;

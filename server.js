@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+require('dotenv').config()
 const productos = require('./routes/products')
 const carrito = require('./routes/cart')
 const port = process.env.PORT || 8080;

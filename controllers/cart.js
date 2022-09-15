@@ -1,47 +1,30 @@
-const Cart = require('../src/cart');
-const Container = require('../src/contenedores/ContenedorMemoriaArchivo');
-const fsCart = new Container("carrito.txt");
-const { fsProduct } = require('../controllers/products') //Esto me sirve para acceder a la instancia de fileSystem que tiene el array de productos
-    // const carrito = new Cart();
+const { daoCarritos } = require('../src/daos/index');
+const { daoProductos } = require('../src/daos/index'); //me permite obtener información del dao ya creado sin correr riesgos de dependencias circulares
 
-const createCart = (req, res) => {
-    const carrito = new Cart();
-    fsCart.save(carrito);
-    res.status(201).json({ id: carrito.id });
+const createCart = async(req, res) => {
+    await daoCarritos.createCart();
+    res.status(201).json({ success: 'true' /*id: carrito.id*/ });
 }
 
-const deleteCart = (req, res) => {
-    const cart = fsCart.getById(Number(req.params['id']))
-    if (cart == null) return errorHandling(res, "Carrito");
-    fsCart.deleteById(Number(req.params['id']));
+const deleteCart = async(req, res) => {
+    await daoCarritos.delete(Number(req.params['id']));
     res.status(204).json({ success: 'true' })
 }
 
-const getCartProducts = (req, res) => {
-    const cart = fsCart.getById(Number(req.params['id']))
-    if (cart == null) return errorHandling(res, "Carrito");
-    res.status(200).json({ result: cart[0].productos });
+const getCartProducts = async(req, res) => {
+    const list = await daoCarritos.getCartProducts(Number(req.params['id']));
+    res.status(200).json({ result: list });
 }
 
-const addToCart = (req, res) => {
-    const cart = fsCart.getById(Number(req.params['id']))
-    if (cart == null) return errorHandling(res, "Carrito");
-    const product = fsProduct.getById(Number(req.params['id_prod']))
-    if (product == null) return errorHandling(res, "Producto");
-    cart[0].addProduct(product[0])
-    fsCart.update(Number(req.params['id']))
+const addToCart = async(req, res) => {
+    const product = await daoProductos.getByCode(req.params['prod_code'])
+    await daoCarritos.addToCart(Number(req.params['id']), product)
     res.status(200).json({ success: 'true' })
 }
 
-const removeFromCart = (req, res) => {
-    const cart = fsCart.getById(Number(req.params['id']))
-    if (cart == null) return errorHandling(res, "Carrito");
-    cart[0].removeProduct(Number(req.params['id_prod']))
+const removeFromCart = async(req, res) => {
+    await daoCarritos.removeFromCart(Number(req.params['id']), Number(req.params['prod_code']))
     res.status(200).json({ success: 'true' })
-}
-
-const errorHandling = (res, target) => {
-    res.status(404).json({ error: `${target} no encontrado` })
 }
 
 module.exports = {

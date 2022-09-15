@@ -1,46 +1,37 @@
-const Container = require('../src/contenedores/ContenedorMemoriaArchivo');
-const Product = require('../src/product')
-const fsProduct = new Container('productos.txt');
+const { daoProductos } = require('../src/daos/index');
 
-const getOneProduct = (req, res) => {
-    const result = fsProduct.getById(Number(req.params['id']))
-    if (result == null) return errorHandling(res);
+const getOneProduct = async(req, res) => {
+    const result = await daoProductos.getByCode(req.params['code']);
     res.status(200).json({ result });
 }
 
-const getAllProducts = (req, res) => {
-    res.status(200).json({ result: fsProduct.getAll() });
+const getAllProducts = async(req, res) => {
+    res.status(200).json({ result: await daoProductos.getAll() });
 }
 
-const postProduct = (req, res) => {
-    const attr = req.body; //Guardo los atributos para crear un producto
-    fsProduct.save(new Product(attr.name, attr.description, attr.code, attr.thumbnail, attr.price, attr.stock))
+const postProduct = async(req, res) => {
+    const attr = req.body;
+    await daoProductos.createProduct(attr.name, attr.description, attr.code, attr.thumbnail, attr.price, attr.stock);
     res.status(201).json({ success: 'true' });
 }
 
-const editProduct = (req, res) => {
-    const product = fsProduct.getById(Number(req.params['id']))
-    if (product[0] == null) return errorHandling(res);
+const editProduct = async(req, res) => {
+    const product = await daoProductos.getByCode(req.params['code'])
+    console.log(product)
     const attr = req.body;
-    product[0].name = attr.name;
-    product[0].description = attr.description;
-    product[0].code = attr.code;
-    product[0].thumbnail = attr.thumbnail;
-    product[0].price = attr.price;
-    product[0].stock = attr.stock;
-    fsProduct.update(Number(req.params['id']));
+    product.name = attr.name;
+    product.description = attr.description;
+    // product.code = attr.code; 
+    product.thumbnail = attr.thumbnail;
+    product.price = attr.price;
+    product.stock = attr.stock;
+    daoProductos.update(product);
     res.status(200).json({ success: 'true' });
 }
 
-const deleteProduct = (req, res) => {
-    const result = fsProduct.getById(Number(req.params['id']))
-    if (result[0] == null) return errorHandling(res);
-    fsProduct.deleteById(Number(req.params['id']))
+const deleteProduct = async(req, res) => {
+    await daoProductos.deleteProduct(req.params['code'])
     res.status(201).json({ success: 'true' })
-}
-
-const errorHandling = (res) => {
-    res.status(404).json({ error: 'Producto no encontrado' })
 }
 
 module.exports = {
@@ -48,6 +39,5 @@ module.exports = {
     getOneProduct,
     postProduct,
     editProduct,
-    deleteProduct,
-    fsProduct
+    deleteProduct
 };
